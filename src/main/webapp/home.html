@@ -262,7 +262,7 @@
                     </ul>
                     <ul id="list_2" class="list-group" style="color: black;">
                         <li class="list-group-item disabled no-border"><span style="font-size: 150%">群聊</span></li>
-                        <li class="list-group-item no-border" onclick="choiceObject(2, 1,'Public Chat Room')">Public Chat Room</li>
+                        <li id="gName" class="list-group-item no-border" onclick="choiceObject(2, 1,'Public Chat Room')">Public Chat Room</li>
                     </ul>
                 </div>
             </div>
@@ -320,6 +320,26 @@
 <script>
 
     $(function () {
+        /*获取未读消息队列*/
+        function getUnread() {
+            $.ajax({
+                type: "POST",
+                url: "http://localhost/unreadList",
+                data: {},
+                beforeSend: function (request) {
+                    request.setRequestHeader("token", $.cookie("token"));
+                },
+                success: function (msg) {
+                    if (msg != "empty") {
+                        var idArray = msg.split(",");
+                        for (var i = 0; i < idArray.length; i++) {
+                            var idname = "fuid" + idArray[i];
+                            document.getElementById(idname).style.display = "inline";
+                        }
+                    }
+                }
+            });
+        }
 
         /*加载好友列表*/
         function updateFriendList() {
@@ -362,6 +382,8 @@
                     $("#friend_t_2").html("家人" + "(" + count2 + ")");
                     $("#friend_t_3").html("同事" + "(" + count3 + ")");
                     $("#friend_t_4").html("同学" + "(" + count4 + ")");
+
+                    getUnread();
                 }
             });
         }
@@ -551,6 +573,9 @@
                             var idname = "fuid" + array[2];
                             document.getElementById(idname).style.display = "inline";
                         }
+                    }else if (array[0] == "chatOnline") {
+                        $("#gName").html("Public Chat Room (" + array[1] + ")");
+                        $("#chatBoxName").html("Public Chat Room (当前在线人数：" + array[1] + ")");
                     }
                     down("chatbox_1");
                 };
@@ -558,7 +583,6 @@
                 //连接关闭的回调方法
                 websocket.onclose = function () {
                     $("#chatbox_1").append("<span style='text-align: center;color: red'>WebSocket连接关闭!</span>");
-
                 };
 
                 //连接成功建立的回调方法
@@ -566,8 +590,6 @@
                     /*var html = $("#deblock_udid1").html();*/
                     $("#chatbox_1").append("<span style='text-align: center;color: red'>WebSocket连接成功!</span>");
                 };
-
-
             }
         });
         //关闭WebSocket连接
@@ -578,10 +600,7 @@
         window.onbeforeunload = function () {
             closeWebSocket();
         };
-
-
         record();
-
     });
 </script>
 </body>

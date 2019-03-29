@@ -10,3 +10,4 @@ gen
 
 /src/main/resources/druid.properties
 /target
+/src/main/test

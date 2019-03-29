@@ -44,14 +44,13 @@ public class WebSocket {
         webSocketMap.put(this.uid, this.session);     //加入map中
         addOnlineCount();           //在线数加1
         System.out.println("有新连接加入！当前在线人数为" + getOnlineCount());
-        /*  try {
-            session.getBasicRemote().sendText("欢迎来到公告聊天室！");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
-        /*for (String id : webSocketMap.keySet()) {
-            System.out.println("OPEN:" + id + webSocketMap.get(id));
-        }*/
+        for (String id : webSocketMap.keySet()) {
+            try {
+                sendMessage(webSocketMap.get(id), "chatOnline," + getOnlineCount());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -62,9 +61,13 @@ public class WebSocket {
         webSocketMap.remove(this.uid);  //从map中删除*/
         subOnlineCount();               //在线数减1
         System.out.println("有一连接关闭！当前在线人数为" + getOnlineCount());
-       /* for (String id : webSocketMap.keySet()) {
-            System.out.println("CLOSE:" + id + webSocketMap.get(id));
-        }*/
+        for (String id : webSocketMap.keySet()) {
+            try {
+                sendMessage(webSocketMap.get(id), "chatOnline," + getOnlineCount());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -77,6 +80,7 @@ public class WebSocket {
         System.out.println("来自客户端的消息:" + message);
         // 格式：类型，ID，TID，内容
         // {type:'g',nickanme:'BOW',uid:'1',giu:'1',content:'你好'}
+        // 统计公共聊天室在线人数
         // 如果是群聊
         if (message.startsWith("{type:'g'")) {
             JSONObject parse = (JSONObject) JSON.parse(message);
@@ -124,16 +128,28 @@ public class WebSocket {
                     e.printStackTrace();
                 }
             } else {
-                // 不在线，存入未读消息队列redis（map:string,int）
+                // 不在线，存入未读消息队列redis（map:string,string）
                 Jedis jedis = JedisUtils.getJedis();
                 Boolean hexists = jedis.hexists("unread", parse.getString("tuid"));
-                int count = 1;
+                //int count = 1;
                 if (hexists) {
                     // 如果有
                     String hget = jedis.hget("unread", parse.getString("tuid"));
-                    count = Integer.parseInt(hget) + 1;
+                    String[] split = hget.split(",");
+                    for (String s : split) {
+                        // 如果已经存在
+                        if (s.equals(parse.getString("uid"))) {
+                            JedisUtils.close(jedis);
+                            return;
+                        }
+                    }
+                    // 如果不存在
+                    hget += "," + parse.getString("uid");
+                    jedis.hset("unread", parse.getString("tuid"), hget);
+                    //count = Integer.parseInt(hget) + 1; 先不管未读条数
+                } else {
+                    jedis.hset("unread", parse.getString("tuid"), parse.getString("uid"));
                 }
-                jedis.hset("unread", parse.getString("tuid"), String.valueOf(count));
                 // 关闭资源
                 JedisUtils.close(jedis);
             }
