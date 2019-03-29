@@ -119,13 +119,14 @@
         function choiceObject(t, id, name) {
             if (t == 1) {
                 now_chat_type = 'p';
+                var idname = "fuid" + id;
+                document.getElementById(idname).style.display = "none";
+                $("#chatBoxName").html(name);
             } else if (t == 2) {
-                now_chat_type = 'g'
+                now_chat_type = 'g';
+                $("#chatBoxName").html( $("#gName").html());
             }
             now_chat_id = id;
-            $("#chatBoxName").html(name);
-            var idname = "fuid" + id;
-            document.getElementById(idname).style.display = "none";
             record();
         }
 
@@ -574,8 +575,10 @@
                             document.getElementById(idname).style.display = "inline";
                         }
                     }else if (array[0] == "chatOnline") {
-                        $("#gName").html("Public Chat Room (" + array[1] + ")");
-                        $("#chatBoxName").html("Public Chat Room (当前在线人数：" + array[1] + ")");
+                        $("#gName").html("Public Chat Room (当前在线人数：" + array[1] + ")");
+                        if (now_chat_type == 'g') {
+                            $("#chatBoxName").html("Public Chat Room (当前在线人数：" + array[1] + ")");
+                        }
                     }
                     down("chatbox_1");
                 };
