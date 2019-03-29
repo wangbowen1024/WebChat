@@ -111,7 +111,6 @@ public class WebSocket {
             service.savePrivateRecord(pr);
             // 如果用户在线
             if (webSocketMap.containsKey(parse.getInteger("tuid").toString())) {
-                System.out.println("在线");
                 StringBuilder sb = new StringBuilder();
                 sb.append("p");
                 sb.append("," + parse.getString("nickname"));
