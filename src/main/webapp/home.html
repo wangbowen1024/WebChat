@@ -124,6 +124,8 @@
             }
             now_chat_id = id;
             $("#chatBoxName").html(name);
+            var idname = "fuid" + id;
+            document.getElementById(idname).style.display = "none";
             record();
         }
 
@@ -225,7 +227,7 @@
                                 <span id="friend_t_1" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">我的好友 </span>
                             </div>
                             <div id="collapseOne" class="panel-collapse collapse">
-                                <div class="panel-body">FRIEND1</div>
+                                <div class="panel-body">FRIEND1<span id="" class="badge" style="background-color:red;margin-left: 5px;display: none">!</span></div>
                             </div>
                         </li>
                         <li class="list-group-item no-border">
@@ -342,16 +344,16 @@
 
                     for (var i = 0; i < msg.length; i++) {
                         if (msg[i].cid == 1) {
-                            $("#collapseOne").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')</div>');
+                            $("#collapseOne").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:red;margin-left: 5px;display: none">!</span></div>');
                             count1 += 1;
                         } else if (msg[i].cid == 2) {
-                            $("#collapse2").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')</div>');
+                            $("#collapse2").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:red;margin-left: 5px;display: none">!</span></div>');
                             count2 += 1;
                         } else if (msg[i].cid == 3) {
-                            $("#collapse3").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')</div>');
+                            $("#collapse3").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:red;margin-left: 5px;display: none">!</span></div>');
                             count3 += 1;
                         } else if (msg[i].cid == 4) {
-                            $("#collapse4").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')</div>');
+                            $("#collapse4").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:red;margin-left: 5px;display: none">!</span></div>');
                             count4 += 1;
                         }
                     }
@@ -521,12 +523,32 @@
                                 '                        <!--信息-->\n' +
                                 '                        <div style="padding-top: 5px">\n' +
                                 '                            <div class="col-sm-1"><img src="img/user.jpg" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
-                                '                            <div>'+array[1]+' (UID:'+array[2]+') '+timeStamp2String(new Date().getTime())+'</div>\n' +
+                                '                            <div>' + array[1] + ' (UID:' + array[2] + ') ' + timeStamp2String(new Date().getTime()) + '</div>\n' +
                                 '                            <p class="col-sm-7 information" style="padding: 5px" >\n' + array[4] +
                                 '                            </p>\n' +
                                 '                        </div>\n' +
                                 '                    </div>';
                             $("#chatbox_1").append(reMsg);
+                        } else {
+                            // 添加未读消息提示（徽章）
+                            // 暂时仅支持好友
+                        }
+                    } else if (array[0] == "p") {
+                        if (now_chat_type == "p" && now_chat_id == array[3]) {
+                            var reMsg = '<div class="row">\n' +
+                                '                        <!--信息-->\n' +
+                                '                        <div style="padding-top: 5px">\n' +
+                                '                            <div class="col-sm-1"><img src="img/user.jpg" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
+                                '                            <div>' + array[1] + ' (UID:' + array[2] + ') ' + timeStamp2String(new Date().getTime()) + '</div>\n' +
+                                '                            <p class="col-sm-7 information" style="padding: 5px" >\n' + array[4] +
+                                '                            </p>\n' +
+                                '                        </div>\n' +
+                                '                    </div>';
+                            $("#chatbox_1").append(reMsg);
+                        } else {
+                            // 添加未读消息提示（徽章）
+                            var idname = "fuid" + array[2];
+                            document.getElementById(idname).style.display = "inline";
                         }
                     }
                     down("chatbox_1");

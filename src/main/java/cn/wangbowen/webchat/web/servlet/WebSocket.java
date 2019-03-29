@@ -110,9 +110,20 @@ public class WebSocket {
             RecordService service = new RecordServiceImpl();
             service.savePrivateRecord(pr);
             // 如果用户在线
-            if (webSocketMap.containsKey(parse.containsKey("tuid"))) {
+            if (webSocketMap.containsKey(parse.getInteger("tuid").toString())) {
                 System.out.println("在线");
+                StringBuilder sb = new StringBuilder();
+                sb.append("p");
+                sb.append("," + parse.getString("nickname"));
+                sb.append("," + parse.getInteger("uid"));
+                sb.append("," + parse.getInteger("tuid"));
+                sb.append("," + parse.getString("content"));
                 // 发送
+                try {
+                    sendMessage(webSocketMap.get(parse.getInteger("tuid").toString()), sb.toString());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } else {
                 // 不在线，存入未读消息队列redis（map:string,int）
                 Jedis jedis = JedisUtils.getJedis();
