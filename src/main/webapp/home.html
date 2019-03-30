@@ -142,8 +142,69 @@
             <div class="" style="text-align: right">
                 <!--<button type="button" class="btn btn-default btn-sm middle">设置</button>
                 <button type="button" class="btn btn-default btn-sm">退出</button>-->
-                <a href="javascript:void(0);"><span style="color: white">设置</span></a> |
+                <a href="javascript:void(0);"><span style="color: white" data-toggle="modal" data-target="#myModa3">设置</span></a> |
                 <a href="javascript:void(0);" onclick="exit_user()"><span style="color: white">退出</span></a>
+                <!-- 模态框（Modal） -->
+                <div class="modal fade" id="myModa3" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="text-align: left">
+                            <div class="modal-header" style="color: black">
+                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                    &times;
+                                </button>
+                                <h4 class="modal-title">
+                                    资料设置
+                                </h4>
+                            </div>
+                            <div class="modal-body" style="color: black">
+                                <!--修改昵称-->
+                                <h3>修改昵称</h3>
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button">
+                                                    昵称
+                                                </button>
+                                            </span>
+                                            <input id="setNickname" type="text" class="form-control" placeholder="请输入昵称">
+                                        </div><!-- /input-group -->
+                                    </div><!-- /.col-lg-6 --><br>
+                                </div><!-- /.row -->
+                                <!--修改密码-->
+                                <h3>修改密码</h3>
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button">
+                                                    旧密码
+                                                </button>
+                                            </span>
+                                            <input id="setOldPassword" type="text" class="form-control" placeholder="如需更改密码请输入（选填）">
+                                        </div><!-- /input-group -->
+                                    </div><!-- /.col-lg-6 -->
+                                </div><!-- /.row --><br>
+                                <div class="row">
+                                    <div class="col-lg-8">
+                                        <div class="input-group">
+                                            <span class="input-group-btn">
+                                                <button class="btn btn-default" type="button">
+                                                   新密码
+                                                </button>
+                                            </span>
+                                            <input id="setNewPassword" type="text" class="form-control" placeholder="如需更改密码请输入（选填）">
+                                        </div><!-- /input-group -->
+                                    </div><!-- /.col-lg-6 -->
+                                </div><!-- /.row -->
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button id="updateInfoBtn" type="button" class="btn btn-primary">修改</button>
+                            </div>
+                        </div><!-- /.modal-content -->
+                    </div><!-- /.modal -->
+                </div>
             </div>
         </header>
         <div id="mainbody" class="row">
@@ -208,7 +269,7 @@
                                     <span class="input-group-addon"> UID </span>
                                     <input id="friendId" type="text" class="form-control" placeholder="UID">
                                 </div>
-                                <h3 id="friendQue"></h3>
+                                <h3 id="friendQue">问题</h3>
                                 <div class="input-group input-group-lg">
                                     <span class="input-group-addon">答案</span>
                                     <input id="friendAnswer" type="text" class="form-control" placeholder="请回答对方问题">
@@ -349,6 +410,48 @@
 
 
     $(function () {
+        /*更改昵称或密码*/
+        $("#updateInfoBtn").click(function () {
+            if ($("#setNickname").prop("value") != _nickname) {
+                // 更改昵称
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost/updateNickname",
+                    data: {newNickname: $("#setNickname").prop("value")},
+                    beforeSend: function (request) {
+                        request.setRequestHeader("token", $.cookie("token"));
+                    },
+                    success: function (msg) {
+                        if (msg.type == 1) {
+                            _nickname = $("#setNickname").prop("value");
+                            $("#nickname").html(_nickname);
+                        }
+                    }
+                })
+            }
+            var oldp = $("#setOldPassword").prop("value");
+            var newp = $("#setNewPassword").prop("value");
+            if (oldp != "" && newp != "") {
+                // 更改密码
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost/updatePassword",
+                    data: {oldPassword: oldp, newPassword: newp},
+                    beforeSend: function (request) {
+                        request.setRequestHeader("token", $.cookie("token"));
+                    },
+                    success: function (msg) {
+                        if (msg.type == 1) {
+                            $.cookie("token", "",{expires: -1});
+                            location.href = "http://localhost"
+                        }else if (msg.type == 0) {
+                            alert("原密码不符，修改失败");
+                        }
+                    }
+                })
+            }
+        });
+
         /*刷新基本信息*/
         function updateUserInfo() {
             // 更新
@@ -386,7 +489,7 @@
                 uploadUrl: "http://localhost/uploadImg", //上传的地址
                 allowedFileExtensions: ['jpg', 'gif', 'png'],//接收的文件后缀
 //            maxFilesNum: 5,//上传最大的文件数量
-                uploadExtraData:{"token": $.cookie("token")}, // 附带信息
+                uploadExtraData: {"token": $.cookie("token")}, // 附带信息
                 uploadAsync: true, //默认异步上传
                 showUpload: true, //是否显示上传按钮
                 showRemove: true, //显示移除按钮
@@ -405,7 +508,7 @@
                 validateInitialCount: true,
                 previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
                 msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
-                layoutTemplates:{
+                layoutTemplates: {
                     actionUpload: ""//,   //去掉单独上传按钮
 //                actionDelete:"",
 //                actionZoom:""
@@ -422,6 +525,7 @@
                 console.log('文件上传失败！' + data.id);
             })
         }
+
         initFileInput("imgUpload");
 
         /*获取未读消息队列*/
@@ -468,16 +572,16 @@
 
                     for (var i = 0; i < msg.length; i++) {
                         if (msg[i].cid == 1) {
-                            $("#collapseOne").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
+                            $("#collapseOne").append('<div class="panel-body" onclick="choiceObject(1, ' + msg[i].fuid + ', \'' + msg[i].nickname + '\')">' + msg[i].nickname + '(UID:' + msg[i].fuid + ')<span id="fuid' + msg[i].fuid + '" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
                             count1 += 1;
                         } else if (msg[i].cid == 2) {
-                            $("#collapse2").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
+                            $("#collapse2").append('<div class="panel-body" onclick="choiceObject(1, ' + msg[i].fuid + ', \'' + msg[i].nickname + '\')">' + msg[i].nickname + '(UID:' + msg[i].fuid + ')<span id="fuid' + msg[i].fuid + '" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
                             count2 += 1;
                         } else if (msg[i].cid == 3) {
-                            $("#collapse3").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
+                            $("#collapse3").append('<div class="panel-body" onclick="choiceObject(1, ' + msg[i].fuid + ', \'' + msg[i].nickname + '\')">' + msg[i].nickname + '(UID:' + msg[i].fuid + ')<span id="fuid' + msg[i].fuid + '" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
                             count3 += 1;
                         } else if (msg[i].cid == 4) {
-                            $("#collapse4").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
+                            $("#collapse4").append('<div class="panel-body" onclick="choiceObject(1, ' + msg[i].fuid + ', \'' + msg[i].nickname + '\')">' + msg[i].nickname + '(UID:' + msg[i].fuid + ')<span id="fuid' + msg[i].fuid + '" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
                             count4 += 1;
                         }
                     }
@@ -491,6 +595,7 @@
                 }
             });
         }
+
         updateFriendList();
 
         /*提交问题答案*/
@@ -509,7 +614,7 @@
                 type: "POST",
                 url: "http://localhost/addFriend",
                 dataType: "json",
-                data: {fuid: $("#friendId").val(), answer:$("#friendAnswer").val(), cid: op},
+                data: {fuid: $("#friendId").val(), answer: $("#friendAnswer").val(), cid: op},
                 beforeSend: function (request) {
                     request.setRequestHeader("token", $.cookie("token"));
                 },
@@ -533,7 +638,7 @@
                 success: function (msg) {
                     if (msg.type == 0) {
                         alert(msg.content);
-                    }else if (msg.type == 2) {
+                    } else if (msg.type == 2) {
                         alert(msg.content);
                     } else if (msg.type == 1) {
                         $("#friendId").val($("#selectUID").val());
@@ -578,6 +683,7 @@
         $("#send").click(function () {
             send();
         });
+
         //发送消息
         function send() {
             // {type:'g',nickanme:'BOW',uid:'1',giu:'1',content:'你好'}
@@ -593,11 +699,11 @@
                 '                        <!--信息-->\n' +
                 '                        <div style="padding-top: 5px">\n' +
                 '                            <div class="col-sm-7 col-md-offset-4" >\n' +
-                '                                <div style="text-align: right">'+_nickname+' (UID:'+_uid+') '+timeStamp2String(new Date().getTime())+'</div>\n' +
+                '                                <div style="text-align: right">' + _nickname + ' (UID:' + _uid + ') ' + timeStamp2String(new Date().getTime()) + '</div>\n' +
                 '                                <p class="information" style="padding: 5px">\n' + message +
                 '                                </p>\n' +
                 '                            </div>\n' +
-                '                            <div class="col-sm-1"><img src="http://localhost/upload/'+_img+'?'+new Date().getTime()+'" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
+                '                            <div class="col-sm-1"><img src="http://localhost/upload/' + _img + '?' + new Date().getTime() + '" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
                 '                        </div>\n' +
                 '                    </div>';
             $("#chatbox_1").append(myMsg);
@@ -620,7 +726,7 @@
                 if (msg == "http://localhost") {
                     location.href = msg;
                 }
-               // alert(msg + "!!!");
+                // alert(msg + "!!!");
                 // 获取用户信息
                 $("#nickname").html(msg.nickname);
                 _nickname = msg.nickname;
@@ -628,6 +734,9 @@
                 _uid = msg.uid;
                 $("#touxiang").prop("src", "http://localhost/upload/" + msg.img + "?" + new Date().getTime());
                 _img = msg.img;
+
+                $("#setNickname").prop("value", _nickname);
+
                 //判断当前浏览器是否支持WebSocket
                 if ('WebSocket' in window) {
                     websocket = new WebSocket("ws://localhost/websocket/" + _uid);
@@ -649,7 +758,7 @@
                             var reMsg = '<div class="row">\n' +
                                 '                        <!--信息-->\n' +
                                 '                        <div style="padding-top: 5px">\n' +
-                                '                            <div class="col-sm-1"><img src="http://localhost/upload/'+array[5]+'?'+new Date().getTime()+'" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
+                                '                            <div class="col-sm-1"><img src="http://localhost/upload/' + array[5] + '?' + new Date().getTime() + '" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
                                 '                            <div>' + array[1] + ' (UID:' + array[2] + ') ' + timeStamp2String(new Date().getTime()) + '</div>\n' +
                                 '                            <p class="col-sm-7 information" style="padding: 5px" >\n' + array[4] +
                                 '                            </p>\n' +
@@ -661,12 +770,12 @@
                             // 暂时仅支持好友
                         }
                     } else if (array[0] == "p") {
-                       // alert(now_chat_type + " and " + now_chat_id + "and " + array[2]);
+                        // alert(now_chat_type + " and " + now_chat_id + "and " + array[2]);
                         if (now_chat_type == "p" && now_chat_id == array[2]) {
                             var reMsg = '<div class="row">\n' +
                                 '                        <!--信息-->\n' +
                                 '                        <div style="padding-top: 5px">\n' +
-                                '                            <div class="col-sm-1"><img src="http://localhost/upload/'+array[5]+'?'+new Date().getTime()+'" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
+                                '                            <div class="col-sm-1"><img src="http://localhost/upload/' + array[5] + '?' + new Date().getTime() + '" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
                                 '                            <div>' + array[1] + ' (UID:' + array[2] + ') ' + timeStamp2String(new Date().getTime()) + '</div>\n' +
                                 '                            <p class="col-sm-7 information" style="padding: 5px" >\n' + array[4] +
                                 '                            </p>\n' +
@@ -678,7 +787,7 @@
                             var idname = "fuid" + array[2];
                             document.getElementById(idname).style.display = "inline";
                         }
-                    }else if (array[0] == "chatOnline") {
+                    } else if (array[0] == "chatOnline") {
                         $("#gName").html("Public Chat Room (当前在线人数：" + array[1] + ")");
                         if (now_chat_type == 'g') {
                             $("#chatBoxName").html("Public Chat Room (当前在线人数：" + array[1] + ")");
@@ -699,10 +808,12 @@
                 };
             }
         });
+
         //关闭WebSocket连接
         function closeWebSocket() {
             websocket.close();
         }
+
         //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
         window.onbeforeunload = function () {
             closeWebSocket();

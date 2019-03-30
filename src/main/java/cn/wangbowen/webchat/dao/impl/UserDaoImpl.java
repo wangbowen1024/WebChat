@@ -8,6 +8,7 @@ import cn.wangbowen.webchat.utils.JDBCUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.servlet.ServletRequest;
 import java.util.List;
 
 public class UserDaoImpl implements UserDao {
@@ -85,5 +86,17 @@ public class UserDaoImpl implements UserDao {
     public void saveImg(String fileName, int uid) {
         String sql = "update user set img = ? where uid = ?";
         template.update(sql, fileName, uid);
+    }
+
+    @Override
+    public void updateNickname(String newNickname, int uid) {
+        String sql = "update user set nickname = ? where uid = ?";
+        template.update(sql, newNickname, uid);
+    }
+
+    @Override
+    public void updatePassword(String newPassword, int uid) {
+        String sql = "update user set password = ? where uid = ?";
+        template.update(sql, newPassword, uid);
     }
 }

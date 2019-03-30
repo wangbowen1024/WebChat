@@ -69,4 +69,18 @@ public interface UserService {
      * @param uid
      */
     public void saveImg(String fileName, int uid);
+
+    /**
+     * 更新昵称
+     * @param newNickname
+     * @param uid
+     */
+    public void updateNickname(String newNickname, int uid);
+
+    /**
+     * 修改密码
+     * @param newPassword
+     * @param uid
+     */
+    public void updatePassword(String newPassword, int uid);
 }

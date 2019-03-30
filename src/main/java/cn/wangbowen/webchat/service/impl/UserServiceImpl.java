@@ -66,4 +66,14 @@ public class UserServiceImpl implements UserService {
     public void saveImg(String fileName, int uid) {
         userDao.saveImg(fileName, uid);
     }
+
+    @Override
+    public void updateNickname(String newNickname, int uid) {
+        userDao.updateNickname(newNickname, uid);
+    }
+
+    @Override
+    public void updatePassword(String newPassword, int uid) {
+        userDao.updatePassword(newPassword, uid);
+    }
 }

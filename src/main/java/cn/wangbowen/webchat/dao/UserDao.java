@@ -70,4 +70,18 @@ public interface UserDao {
      */
     public void saveImg(String fileName, int uid);
 
+    /**
+     * 更新昵称
+     * @param newNickname
+     * @param uid
+     */
+    public void updateNickname(String newNickname, int uid);
+
+    /**
+     * 更新密码
+     * @param newPassword
+     * @param uid
+     */
+    public void updatePassword(String newPassword, int uid);
+
 }
