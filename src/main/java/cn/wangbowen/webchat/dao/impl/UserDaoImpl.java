@@ -80,4 +80,10 @@ public class UserDaoImpl implements UserDao {
         }
         return friend;
     }
+
+    @Override
+    public void saveImg(String fileName, int uid) {
+        String sql = "update user set img = ? where uid = ?";
+        template.update(sql, fileName, uid);
+    }
 }

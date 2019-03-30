@@ -62,4 +62,8 @@ public class UserServiceImpl implements UserService {
         return userDao.getFriendByTwoId(uid, fuid);
     }
 
+    @Override
+    public void saveImg(String fileName, int uid) {
+        userDao.saveImg(fileName, uid);
+    }
 }

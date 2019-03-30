@@ -63,4 +63,10 @@ public interface UserService {
      */
     public Friend checkFriend(int uid, int fuid);
 
+    /**
+     * 保存图片
+     * @param fileName
+     * @param uid
+     */
+    public void saveImg(String fileName, int uid);
 }

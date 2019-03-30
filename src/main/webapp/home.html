@@ -13,6 +13,7 @@
     <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
     <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
     <![endif]-->
+    <link href="css/fileinput.min.css" rel="stylesheet">
     <style>
         .pad-top {
             padding-top: 10px;
@@ -40,10 +41,10 @@
 
         var _nickname = "";
         var _uid = 0;
+        var _img = "";
         var now_chat_id = 1;
         var now_chat_type = 'g';
         var flag = true;
-        // websocket
         var websocket = null;
 
         function exit_user() {
@@ -94,14 +95,14 @@
                                 '                                <p class="information" style="padding: 5px">\n' + msg[i].content +
                                 '                                </p>\n' +
                                 '                            </div>\n' +
-                                '                            <div class="col-sm-1"><img src="img/user.jpg" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
+                                '                            <div class="col-sm-1"><img src="http://localhost/upload/'+_img+'?'+new Date().getTime()+'" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
                                 '                        </div>\n' +
                                 '                    </div>';
                         } else {
                             reMsg = '<div class="row">\n' +
                                 '                        <!--信息-->\n' +
                                 '                        <div style="padding-top: 5px">\n' +
-                                '                            <div class="col-sm-1"><img src="img/user.jpg" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
+                                '                            <div class="col-sm-1"><img src="http://localhost/upload/'+msg[i].img+'?'+new Date().getTime()+'" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
                                 '                            <div>'+msg[i].nickname+' (UID:'+msg[i].uid+')  '+timeStamp2String(msg[i].sendtime)+'</div>\n' +
                                 '                            <p class="col-sm-7 information" style="padding: 5px" >\n' + msg[i].content +
                                 '                            </p>\n' +
@@ -141,7 +142,7 @@
             <div class="" style="text-align: right">
                 <!--<button type="button" class="btn btn-default btn-sm middle">设置</button>
                 <button type="button" class="btn btn-default btn-sm">退出</button>-->
-                <a href="#"><span style="color: white">设置</span></a> |
+                <a href="javascript:void(0);"><span style="color: white">设置</span></a> |
                 <a href="javascript:void(0);" onclick="exit_user()"><span style="color: white">退出</span></a>
             </div>
         </header>
@@ -151,7 +152,34 @@
                 <!--基本信息-->
                 <div class="row pad-top">
                     <div class="col-sm-3">
-                        <img src="img/user.jpg" class="img-circle img-responsive" alt="用户头像">
+                        <a href="javascript:void(0);" data-toggle="modal" data-target="#myModa2"><img  id="touxiang" src="" class="img-circle img-responsive" alt="用户头像"></a>
+                    </div>
+                    <!-- 模态框（Modal） -->
+                    <div class="modal fade" id="myModa2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content" style="text-align: left">
+                                <div class="modal-header" style="color: black">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                                        &times;
+                                    </button>
+                                    <h4 class="modal-title" id="ppp">
+                                        头像设置
+                                    </h4>
+                                </div>
+                                <div class="modal-body" style="color: black">
+                                    <!--上传头像-->
+                                    <form enctype="multipart/form-data" style="margin-top: 20px" method="post">
+                                        <div class="form-group">
+                                            <input name="photo" id="imgUpload" class="file-loading" type="file">
+                                        </div>
+                                    </form>
+                                    <!--修改密码-->
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                </div>
+                            </div><!-- /.modal-content -->
+                        </div><!-- /.modal -->
                     </div>
                     <div class="col-sm-9">
                         <h4><span id="nickname">***</span> (UID: <span id="username">*</span>)</h4>
@@ -290,15 +318,14 @@
                 </div>
             </div>
         </div>
-<!--        <footer id="footer" class="footer navbar-fixed-bottom" style="background-color: #5bc0de;text-align: center">
-            <span>Copyright © 2013-2019 菜鸟教程  runoob.com All Rights Reserved. 备案号：闽ICP备15012807号-1</span>
-        </footer>-->
     </div>
 
 <!-- jQuery (Bootstrap 的 JavaScript 插件需要引入 jQuery) -->
 <script src="https://code.jquery.com/jquery.js"></script>
 <!-- 包括所有已编译的插件 -->
 <script src="js/bootstrap.min.js"></script>
+<script src="js/fileinput.min.js"></script>
+<script src="js/plugins/piexif.min.js"></script>
 <script>
     var windows_width = window.innerWidth;
     var windows_height =window.innerHeight;
@@ -320,7 +347,83 @@
 <script src="js/jquery.cookie.js" type="text/javascript"></script>
 <script>
 
+
     $(function () {
+        /*刷新基本信息*/
+        function updateUserInfo() {
+            // 更新
+            $.ajax({
+                headers: {
+                    "token": $.cookie("token")//此处放置请求到的用户token
+                },
+                type: "POST",
+                async: false,
+                url: "http://localhost/userInfo",//请求url
+                contentType: "application/json;charset=utf-8",
+                /*beforeSend: function (request) {
+                    request.setRequestHeader("token", $.cookie("token"));
+                },*/
+                success: function (msg) {
+                    if (msg == "http://localhost") {
+                        location.href = msg;
+                    }
+                    // 获取用户信息
+                    $("#nickname").html(msg.nickname);
+                    _nickname = msg.nickname;
+                    $("#username").html(msg.uid);
+                    _uid = msg.uid;
+                    $("#touxiang").prop("src", "http://localhost/upload/" + msg.img + "?" + new Date().getTime());
+                    _img = msg.img;
+                }
+            });
+        }
+
+        /*上传文件初始化*/
+        function initFileInput(ctrlName) {
+            var control = $('#' + ctrlName);
+            control.fileinput({
+                language: 'zh', //设置语言
+                uploadUrl: "http://localhost/uploadImg", //上传的地址
+                allowedFileExtensions: ['jpg', 'gif', 'png'],//接收的文件后缀
+//            maxFilesNum: 5,//上传最大的文件数量
+                uploadExtraData:{"token": $.cookie("token")}, // 附带信息
+                uploadAsync: true, //默认异步上传
+                showUpload: true, //是否显示上传按钮
+                showRemove: true, //显示移除按钮
+                showPreview: true, //是否显示预览
+                showCaption: false,//是否显示标题
+                browseClass: "btn btn-primary", //按钮样式
+                dropZoneEnabled: false,//是否显示拖拽区域
+                //minImageWidth: 50, //图片的最小宽度
+                //minImageHeight: 50,//图片的最小高度
+                //maxImageWidth: 1000,//图片的最大宽度
+                //maxImageHeight: 1000,//图片的最大高度
+                maxFileSize: 2048,//单位为kb，如果为0表示不限制文件大小
+                //minFileCount: 0,
+//            maxFileCount: 3, //表示允许同时上传的最大文件个数
+                enctype: 'multipart/form-data',
+                validateInitialCount: true,
+                previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+                msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+                layoutTemplates:{
+                    actionUpload: ""//,   //去掉单独上传按钮
+//                actionDelete:"",
+//                actionZoom:""
+                }
+
+            }).on('filepreupload', function (event, data, previewId, index) {     //上传中
+                var form = data.form, files = data.files, extra = data.extra,
+                    response = data.response, reader = data.reader;
+                console.log('文件正在上传');
+            }).on("fileuploaded", function (event, data, previewId, index) {    //一个文件上传成功
+                updateUserInfo();
+            }).on('fileerror', function (event, data, msg) {  //一个文件上传失败
+                alert("上传失败");
+                console.log('文件上传失败！' + data.id);
+            })
+        }
+        initFileInput("imgUpload");
+
         /*获取未读消息队列*/
         function getUnread() {
             $.ajax({
@@ -365,16 +468,16 @@
 
                     for (var i = 0; i < msg.length; i++) {
                         if (msg[i].cid == 1) {
-                            $("#collapseOne").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:red;margin-left: 5px;display: none">!</span></div>');
+                            $("#collapseOne").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
                             count1 += 1;
                         } else if (msg[i].cid == 2) {
-                            $("#collapse2").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:red;margin-left: 5px;display: none">!</span></div>');
+                            $("#collapse2").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
                             count2 += 1;
                         } else if (msg[i].cid == 3) {
-                            $("#collapse3").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:red;margin-left: 5px;display: none">!</span></div>');
+                            $("#collapse3").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
                             count3 += 1;
                         } else if (msg[i].cid == 4) {
-                            $("#collapse4").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:red;margin-left: 5px;display: none">!</span></div>');
+                            $("#collapse4").append('<div class="panel-body" onclick="choiceObject(1, '+msg[i].fuid+', \''+msg[i].nickname+'\')">'+msg[i].nickname+'(UID:'+msg[i].fuid+')<span id="fuid'+msg[i].fuid+'" class="badge" style="background-color:#ED3C42;margin-left: 5px;display: none">!</span></div>');
                             count4 += 1;
                         }
                     }
@@ -494,7 +597,7 @@
                 '                                <p class="information" style="padding: 5px">\n' + message +
                 '                                </p>\n' +
                 '                            </div>\n' +
-                '                            <div class="col-sm-1"><img src="img/user.jpg" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
+                '                            <div class="col-sm-1"><img src="http://localhost/upload/'+_img+'?'+new Date().getTime()+'" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
                 '                        </div>\n' +
                 '                    </div>';
             $("#chatbox_1").append(myMsg);
@@ -523,7 +626,8 @@
                 _nickname = msg.nickname;
                 $("#username").html(msg.uid);
                 _uid = msg.uid;
-
+                $("#touxiang").prop("src", "http://localhost/upload/" + msg.img + "?" + new Date().getTime());
+                _img = msg.img;
                 //判断当前浏览器是否支持WebSocket
                 if ('WebSocket' in window) {
                     websocket = new WebSocket("ws://localhost/websocket/" + _uid);
@@ -545,7 +649,7 @@
                             var reMsg = '<div class="row">\n' +
                                 '                        <!--信息-->\n' +
                                 '                        <div style="padding-top: 5px">\n' +
-                                '                            <div class="col-sm-1"><img src="img/user.jpg" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
+                                '                            <div class="col-sm-1"><img src="http://localhost/upload/'+array[5]+'?'+new Date().getTime()+'" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
                                 '                            <div>' + array[1] + ' (UID:' + array[2] + ') ' + timeStamp2String(new Date().getTime()) + '</div>\n' +
                                 '                            <p class="col-sm-7 information" style="padding: 5px" >\n' + array[4] +
                                 '                            </p>\n' +
@@ -562,7 +666,7 @@
                             var reMsg = '<div class="row">\n' +
                                 '                        <!--信息-->\n' +
                                 '                        <div style="padding-top: 5px">\n' +
-                                '                            <div class="col-sm-1"><img src="img/user.jpg" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
+                                '                            <div class="col-sm-1"><img src="http://localhost/upload/'+array[5]+'?'+new Date().getTime()+'" class="img-circle" style="height: 50px;width: 50px" alt="用户头像"></div>\n' +
                                 '                            <div>' + array[1] + ' (UID:' + array[2] + ') ' + timeStamp2String(new Date().getTime()) + '</div>\n' +
                                 '                            <p class="col-sm-7 information" style="padding: 5px" >\n' + array[4] +
                                 '                            </p>\n' +

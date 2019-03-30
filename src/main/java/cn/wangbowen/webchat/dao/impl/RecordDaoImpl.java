@@ -13,7 +13,7 @@ public class RecordDaoImpl implements RecordDao {
     private JdbcTemplate template = new JdbcTemplate(JDBCUtils.getDataSource());
     @Override
     public List<GroupRecord> getGroupRecord(int gid) {
-        String sql = "select g.id,g.uid,u.nickname,g.gid,g.sendtime,g.content from groupchatrecord g join user u on g.uid = u.uid where gid = ? order by sendtime desc limit 0,100";
+        String sql = "select g.id,g.uid,u.nickname,g.gid,g.sendtime,g.content,u.img from groupchatrecord g join user u on g.uid = u.uid where gid = ? order by sendtime desc limit 0,100";
         List<GroupRecord> query = template.query(sql, new BeanPropertyRowMapper<GroupRecord>(GroupRecord.class), gid);
         return query;
     }
@@ -32,7 +32,7 @@ public class RecordDaoImpl implements RecordDao {
 
     @Override
     public List<PrivateRecord> getPrivateRecord(int uid, int fuid) {
-        String sql = "select p.id,p.uid,u.nickname,p.tuid,p.sendtime,p.content from privatechatrecord p join user u on p.uid = u.uid where (p.uid=? and p.tuid=?) or (p.uid=? and p.tuid=?) order by sendtime desc limit 0,100";
+        String sql = "select p.id,p.uid,u.nickname,p.tuid,p.sendtime,p.content,u.img from privatechatrecord p join user u on p.uid = u.uid where (p.uid=? and p.tuid=?) or (p.uid=? and p.tuid=?) order by sendtime desc limit 0,100";
         List<PrivateRecord> query = template.query(sql, new BeanPropertyRowMapper<PrivateRecord>(PrivateRecord.class), uid, fuid, fuid, uid);
         return query;
 

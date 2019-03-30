@@ -2,6 +2,7 @@ package cn.wangbowen.webchat.web.servlet;
 
 import cn.wangbowen.webchat.domain.GroupRecord;
 import cn.wangbowen.webchat.domain.PrivateRecord;
+import cn.wangbowen.webchat.domain.User;
 import cn.wangbowen.webchat.service.RecordService;
 import cn.wangbowen.webchat.service.UserService;
 import cn.wangbowen.webchat.service.impl.RecordServiceImpl;
@@ -90,6 +91,9 @@ public class WebSocket {
             sb.append("," + parse.getInteger("uid"));
             sb.append("," + parse.getInteger("gid"));
             sb.append("," + parse.getString("content"));
+            UserService service1 = new UserServiceImpl();
+            User toUser = service1.getUserByUid(parse.getInteger("uid"));
+            sb.append("," + toUser.getImg());
             // 群发消息
             for (String id : webSocketMap.keySet()) {
                 try {
@@ -121,6 +125,9 @@ public class WebSocket {
                 sb.append("," + parse.getInteger("uid"));
                 sb.append("," + parse.getInteger("tuid"));
                 sb.append("," + parse.getString("content"));
+                UserService service1 = new UserServiceImpl();
+                User toUser = service1.getUserByUid(parse.getInteger("tuid"));
+                sb.append("," + toUser.getImg());
                 // 发送
                 try {
                     sendMessage(webSocketMap.get(parse.getInteger("tuid").toString()), sb.toString());

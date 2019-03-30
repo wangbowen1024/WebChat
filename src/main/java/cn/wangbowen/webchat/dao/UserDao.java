@@ -63,4 +63,11 @@ public interface UserDao {
      */
     public Friend getFriendByTwoId(int uid, int fuid);
 
+    /**
+     * 保存图片名
+     * @param fileName
+     * @param uid
+     */
+    public void saveImg(String fileName, int uid);
+
 }

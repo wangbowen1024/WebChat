@@ -12,6 +12,15 @@ public class GroupRecord {
     private Timestamp sendtime;
     private String content;
     private String nickname;
+    private String img;
+
+    public String getImg() {
+        return img;
+    }
+
+    public void setImg(String img) {
+        this.img = img;
+    }
 
     public int getId() {
         return id;
@@ -70,6 +79,7 @@ public class GroupRecord {
                 ", sendtime=" + sendtime +
                 ", content='" + content + '\'' +
                 ", nickname='" + nickname + '\'' +
+                ", img='" + img + '\'' +
                 '}';
     }
 }

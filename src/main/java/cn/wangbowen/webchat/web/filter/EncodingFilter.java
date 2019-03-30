@@ -24,7 +24,7 @@ public class EncodingFilter implements javax.servlet.Filter {
         // 判断自愿路径，注意放CSS等资源
         if (uri.contains("/css/") || uri.contains("/js/") || uri.contains("/img/") || uri.contains("html")
         || uri.contains("/register") || uri.contains("/websocket") || uri.equals("/") || uri.contains("ico")
-        || uri.contains("/login")) {
+        || uri.contains("/login") || uri.contains("/uploadImg") || uri.contains("/upload")) {
             //System.out.println("直接放行：" + uri);
             chain.doFilter(request, resp);
             return;
