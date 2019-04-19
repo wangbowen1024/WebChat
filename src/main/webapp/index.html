@@ -162,7 +162,9 @@
                         // 将token存起来！
                         $.cookie("token", data.content, { expires: 7 }); // 存储一个带7天期限的 cookie
                         // 跳转Home
-                        location.href = "http://localhost";
+                        //location.href = "http://localhost";
+                        alert("注册成功")
+                        $("#register").modal("hide");
                     }
                 },"json");
             });

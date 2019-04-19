@@ -613,6 +613,7 @@
                 success: function (msg) {
                     updateFriendList();
                     alert(msg.content);
+                    $("#myModal").modal("hide");
                 }
             });
         });
@@ -630,8 +631,10 @@
                 success: function (msg) {
                     if (msg.type == 0) {
                         alert(msg.content);
+                        $("#myModal").modal("hide");
                     } else if (msg.type == 2) {
                         alert(msg.content);
+                        $("#myModal").modal("hide");
                     } else if (msg.type == 1) {
                         $("#friendId").val($("#selectUID").val());
                         $("#friendQue").html("问题：" + msg.content);
