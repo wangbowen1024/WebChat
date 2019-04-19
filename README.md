@@ -13,6 +13,27 @@
 
 * Redis
 
+注意先要创建数据库，SQL语句已给出。然后需要手动创建配置文件到resource目录下：
+
+---------------------------------------------
+文件名 druid.properties （文件内容如下）
+
+driverClassName=com.mysql.jdbc.Driver
+
+url=jdbc:mysql://localhost:3306/webchat
+
+username=root（自己的数据库用户名）
+
+password=XXXXX(自己的数据库密码)
+
+initialSize=5
+
+maxActive=10
+
+maxWait=3000
+
+---------------------------------------------
+
 打war包后在本地可以直接运行，若要在服务器上运行，记得将代码中的localhost修改为自己服务器公网的IP地址或域名。
 
 
